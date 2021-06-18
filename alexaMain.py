@@ -1,4 +1,3 @@
-print("Hello World")
 
 import speech_recognition as sr
 import pyttsx3 #getting alexa to talk to you by creating engine#text to speech
@@ -9,8 +8,9 @@ import pyjokes
 #import pyowm
 import webbrowser
 import pyaudio
+import random 
 
-####hello this a test!
+
 
 listener = sr. Recognizer()
 engine = pyttsx3.init() #initializing the engine
@@ -20,19 +20,23 @@ engine.setProperty('volume',2.0)
 engine.setProperty('LanguageCode',"en-US")
 #engine.setProperty('voice',)
 
+
+#used to communicate with the user
 def talk(text):
     engine.say(text) #makes it dynamic
     #engine.say('What can I do for you')
     engine.runAndWait()
+
+ #receive request/order from user
 def take_command():
     command='Nothing'
     try:
         with sr.Microphone() as source:
-            print('listening...') #shows if alexa is listening
-            voice = listener.listen(source) #calling on the listener to listen to the source
-            listener.adjust_for_ambient_noise(source)
-            listener.dynamic_energy_threshold = 3000
-            command = listener.recognize_google(voice) #google api speech for text gives you text version of what you spoke
+            print('listening...') #shows that alexa is listening/awaiting for a command
+            voice = listener.listen(source,timeout=8.0)) #calling on the listener to listen to the source
+            listener.adjust_for_ambient_noise(source) 
+            listener.dynamic_energy_threshold = 3000 #fine tuning
+            command = listener.recognize_google(voice) #google api speech for text gives you text version of what the user spoke/requested
             command = command. lower()
             if 'alexa' in command:
                 command = command.replace('alexa','')
@@ -47,9 +51,10 @@ def take_command():
     except sr.UnknownValueError:
         pass
     except sr.RequestError:
-        pass
+        command="Network Error"
     return command
 
+#analyze request
 def run_alexa(command=" "):
     if not command:
         command = take_command() #take command's output
@@ -65,7 +70,7 @@ def run_alexa(command=" "):
         talk('Current time is' + time)
     elif 'who is' in command:
         person = command.replace('who is', '')
-        info= wikipedia.summary(person, 1)
+        info= wikipedia.summary(person, 1) #limits the summary to only 1 page
         talk(info)
     elif 'date' in command:
         talk('sorry, i have a headache')
@@ -102,20 +107,27 @@ def run_alexa(command=" "):
         pass
 
     elif "feeling" in command:
-        talk("i am good")
+        feelings_list=["I am great.","I am fine","Great!"]
+        #make it dynamic
+        random_feeling=random.choice(feelings_list)
+        talk(random_feeling)
         pass
     elif 'joke' in command:
         talk(pyjokes.get_joke())
         pass
+    '''
     elif 'bestfriend' in command:
         talk("you dumbass")
         pass
+    
     elif 'stop' in command:
         pass
+    '''
     else:
-        talk('please say something else')
+        talk('I am not trained to do that yet, please request something else')
         pass
 
+#driving code
 DEFAULT=True
 while DEFAULT:
     command=take_command()
@@ -126,7 +138,6 @@ while DEFAULT:
 
 #it will keep on running even after you ask a question
 
-#covnversation_log='Conversation log.txt'
 
 
 
